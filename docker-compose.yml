@@ -10,4 +10,26 @@ services:
       - "8000:8000"
     volumes:
       - ./app:/app
+    depends_on:
+      - db
     command: python manage.py runserver 0.0.0.0:8000
+    environment:
+      - DB_HOST=db
+      - DB_NAME=devdb
+      - DB_USER=devuser
+      - DB_PASSWORD=changeme
+      - DB_PORT=5432
+
+  db:
+    image: postgres:13-alpine
+    volumes:
+      - dev-db-data:/var/lib/postgres/data
+    environment:
+      - POSTGRES_DB=devdb
+      - POSTGRES_USER=devuser
+      - POSTGRES_PASSWORD=changeme
+    ports:
+      - "5434:5432"
+
+volumes:
+  dev-db-data:
