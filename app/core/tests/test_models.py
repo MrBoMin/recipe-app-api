@@ -1,9 +1,5 @@
 """
-Tests for Models
-
-Keyword arguments:
-argument -- description
-Return: return_description
+Tests for Models Creating
 """
 from decimal import Decimal
 
@@ -12,16 +8,19 @@ from django.test import TestCase
 from django.contrib.auth import get_user_model
 from core import models
 
+def create_user(email = 'user@example.com', password = 'test123'):
+    '''Create and return the new user'''
+    user = get_user_model().objects.create_user(email,password)
+    return user
+
+
 class ModelTest(TestCase):
     """Test Models"""
     def test_create_user_with_email_successful(self):
         """Test creating a user with an email is successful"""
         email = "test@example.com"
         password = "testpass123"
-        user = get_user_model().objects.create_user(
-            email = email,
-            password = password
-        )
+        user = create_user(email,password)
 
         self.assertEqual(user.email, email)
         self.assertTrue(user.check_password(password))
@@ -72,3 +71,10 @@ class ModelTest(TestCase):
         )
 
         self.assertEqual(str(recipe), recipe.title)
+
+
+    def test_create_tag(self):
+        user = create_user('test@example.com', 'testpass123')
+        tag = models.Tag.objects.create(user = user,name='Tag1')
+
+        self.assertEqual(str(tag), tag.name)
