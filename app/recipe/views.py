@@ -8,9 +8,10 @@ from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from core.models import Recipe,Tag, Ingredient
 from recipe import serializers
-from .serializers import RecipeSerializer,RecipeDetailSerializer, TagSerializer, IngredientSerializer
+from .serializers import RecipeSerializer,RecipeDetailSerializer, TagSerializer, IngredientSerializer, RecipeImageSerializer
 from rest_framework.decorators import action
 from rest_framework.response import Response
+
 
 @extend_schema_view(
     list = extend_schema(
@@ -78,6 +79,26 @@ class RecipeViewSet(viewsets.ModelViewSet):
             return Response(serializer.data, status = status.HTTP_200_OK)
         return Response(serializer.errors, status = status.HTTP_400_BAD_REQUEST)
 
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                'tags',
+                OpenApiTypes.STR,
+                description='Comma separated list of tag IDs to filter',
+            ),
+            OpenApiParameter(
+                'ingredients',
+                OpenApiTypes.STR,
+                description='Comma separated list of ingredient IDs to filter',
+            ),
+        ]
+    ),
+    upload_image=extend_schema(
+        request=RecipeImageSerializer,
+        responses={status.HTTP_200_OK: RecipeImageSerializer},
+    ),
+)
 
 class BaseRecipeAttrViewSet(mixins.DestroyModelMixin,
                             mixins.UpdateModelMixin,
@@ -88,7 +109,16 @@ class BaseRecipeAttrViewSet(mixins.DestroyModelMixin,
     permission_classes = [IsAuthenticated]
     def get_queryset(self):
         '''Filter the query set to authenticated user'''
-        return self.queryset.filter(user = self.request.user).order_by('-name')
+        assigned_only = bool(
+            int(self.request.query_params.get('assigned_only', 0))
+        )
+        queryset = self.queryset
+        if assigned_only:
+            queryset = queryset.filter(recipes__isnull=False)
+
+        return queryset.filter(
+            user=self.request.user
+        ).order_by('-name').distinct()
 
 class TagViewSet(BaseRecipeAttrViewSet):
     queryset = Tag.objects.all()

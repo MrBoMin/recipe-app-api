@@ -67,7 +67,7 @@ class Recipe(models.Model):
     price = models.DecimalField(max_digits=5, decimal_places=2)
     link = models.CharField(max_length=255, blank=True)
     tags = models.ManyToManyField('Tag', related_name='recipes', blank=True)
-    ingredients = models.ManyToManyField('Ingredient', related_name='ingredients', blank=True)
+    ingredients = models.ManyToManyField('Ingredient', related_name='recipes', blank=True)
     image = models.ImageField(null=True, upload_to=recipe_image_file_path)
 
     def __str__(self):
