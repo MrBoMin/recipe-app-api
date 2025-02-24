@@ -1,4 +1,4 @@
-FROM python:3.9-alpine3.13
+FROM python:3.9-L
 LABEL maintainer="technortal.com"
 
 # Set environment variable to ensure Python output is sent straight to terminal
