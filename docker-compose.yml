@@ -23,6 +23,7 @@ services:
       - DB_USER=devuser
       - DB_PASSWORD=changeme
       - DB_PORT=5432
+      - DEBUG=1
 
   db:
     image: postgres:13-alpine
